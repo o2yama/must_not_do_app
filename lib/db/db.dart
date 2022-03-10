@@ -17,11 +17,7 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
-  Stream<List<Task>> watchTodos() =>
-      (select(tasks)..where((task) => task.isTodo.equals(true))).watch();
-
-  Stream<List<Task>> watchNotTodos() =>
-      (select(tasks)..where((task) => task.isTodo.equals(false))).watch();
+  Stream<List<Task>> watchTasks() => select(tasks).watch();
 
   Future<void> insertTask(TasksCompanion task) async {
     await into(tasks).insert(task);
