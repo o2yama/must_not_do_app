@@ -1,18 +1,16 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:no_todo_app/db/db.dart';
-import 'package:no_todo_app/view/widgets/task_dialog.dart';
+import 'package:no_todo_app/view/components/task_dialog.dart';
 
-final taskModelProvider = StateNotifierProvider.autoDispose(
+final taskModelProvider = Provider.autoDispose(
   (ref) => TaskModel(db: ref.watch(dbProvider)),
 );
 
-class TaskModel extends StateNotifier<Task?> {
-  TaskModel({required this.db}) : super(null);
+class TaskModel {
+  TaskModel({required this.db});
 
   final AppDatabase db;
-
-  var isTodo = true;
 
   bool validateFields() {
     if (titleController.text.isEmpty) {
@@ -55,14 +53,5 @@ class TaskModel extends StateNotifier<Task?> {
 
   Future<void> deleteTask(int taskId) async {
     await db.deleteTask(taskId);
-  }
-
-  Future<void> addBreakCount(Task task) async {
-    await db.updateTask(
-      task.copyWith(
-        breakCount: task.breakCount + 1,
-        updateAt: DateTime.now(),
-      ),
-    );
   }
 }

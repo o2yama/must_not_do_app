@@ -15,20 +15,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        builder: () {
-          return MaterialApp(
-            theme: ThemeData(
-              primaryColor: Colors.white,
-              backgroundColor: Colors.grey.shade100,
-              appBarTheme: AppBarTheme(
-                elevation: 2,
-                color: Theme.of(context).primaryColor,
-                shadowColor: Colors.grey,
-              ),
+      designSize: const Size(360, 690),
+      builder: () {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primaryColor: Colors.white,
+            backgroundColor: Colors.grey.shade100,
+            appBarTheme: AppBarTheme(
+              elevation: 2,
+              color: Theme.of(context).primaryColor,
+              shadowColor: Colors.grey,
             ),
-            home: const HomePage(),
-          );
-        });
+          ),
+          home: const HomePage(),
+        );
+      },
+    );
   }
 }
