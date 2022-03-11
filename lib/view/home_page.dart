@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:no_todo_app/db/db.dart';
 import 'package:no_todo_app/utils/formatter.dart';
-import 'package:no_todo_app/view/widgets/task_dialog.dart';
-import 'package:no_todo_app/view_model/task_card_model.dart';
+import 'package:no_todo_app/view/components/break_count_dialog.dart';
+import 'package:no_todo_app/view/components/task_dialog.dart';
+import 'package:no_todo_app/view_model/break_count_model.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,12 +15,24 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 1,
+        elevation: 0,
         centerTitle: false,
-        title: Image.asset(
-          'assets/images/logo.png',
-          width: 90,
-          fit: BoxFit.fitWidth,
+        toolbarHeight: 60,
+        title: Column(
+          children: [
+            Image.asset(
+              'assets/images/logo.png',
+              width: 80,
+              fit: BoxFit.contain,
+            ),
+            Text(
+              'しないリスト',
+              style: Theme.of(context).textTheme.headline6!.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+          ],
         ),
       ),
       body: SafeArea(
@@ -38,9 +51,7 @@ class HomePage extends StatelessWidget {
           },
         ),
       ),
-      floatingActionButton: Consumer(builder: (context, ref, _) {
-        return _buildAddTaskButton(context, ref);
-      }),
+      floatingActionButton: _buildAddTaskButton(context),
     );
   }
 
@@ -54,31 +65,28 @@ class HomePage extends StatelessWidget {
       );
     } else if (snapshot.data == null || snapshot.data!.isEmpty) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text('「やるべきでない事」を追加しましょう！'),
-            Text(
-              'これを明確にすることで、\nあなたは自由な時間を手に入れることができます。',
-              textAlign: TextAlign.center,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: FittedBox(
+            child: Text(
+              '「しないこと」を決めて\n時間を有意義に使いましょう',
+              style: Theme.of(context).textTheme.headline3,
             ),
-          ],
+          ),
         ),
       );
     } else {
       return ListView(
         children: snapshot.data!
-            .map(
-              (task) => _buildTaskCard(context, task),
-            )
+            .map((task) => _buildTaskCard(context, task))
             .toList(),
       );
     }
   }
 
-  Widget _buildAddTaskButton(BuildContext context, WidgetRef ref) {
+  Widget _buildAddTaskButton(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.redAccent,
       onPressed: () {
         clearControllers();
 
@@ -93,7 +101,7 @@ class HomePage extends StatelessWidget {
         );
       },
       child: const Center(
-        child: Icon(Icons.add, color: Colors.black),
+        child: Icon(Icons.add, size: 30),
       ),
     );
   }
@@ -101,69 +109,85 @@ class HomePage extends StatelessWidget {
   Widget _buildTaskCard(BuildContext context, Task task) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Consumer(builder: (context, ref, child) {
-        final taskCardModel = ref.watch(taskCardModelProvider(task));
+      child: Consumer(
+        builder: (context, ref, child) {
+          final breakCountModel = ref.watch(breakCountModelProvider(task));
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text('作成日 : ' + Formatter.dateFormat(task.createdAt)),
-            SizedBox(height: 4.h),
-            ListTile(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              tileColor: Colors.grey.shade200,
-              onTap: () {
-                titleController.text = task.title;
-                purposeController.text = task.purpose;
-                detailController.text = task.detail ?? '';
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text('作成日 : ' + Formatter.dateFormat(task.createdAt)),
+              SizedBox(height: 4.h),
+              ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
+                ),
+                tileColor: Colors.grey.shade200,
+                onTap: () {
+                  titleController.text = task.title;
+                  purposeController.text = task.purpose;
+                  detailController.text = task.detail ?? '';
 
-                showGeneralDialog(
-                  context: context,
-                  transitionDuration: const Duration(milliseconds: 300),
-                  barrierDismissible: false,
-                  barrierLabel: '',
-                  pageBuilder: (context, animation, secondaryAnimation) {
-                    return TaskDialog(task: task);
+                  showGeneralDialog(
+                    context: context,
+                    transitionDuration: const Duration(milliseconds: 300),
+                    barrierDismissible: false,
+                    pageBuilder: (context, animation, secondaryAnimation) {
+                      return TaskDialog(task: task);
+                    },
+                  );
+                },
+                title: Text(
+                  task.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                subtitle: Text(
+                  '目的 : ' + task.purpose,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: ElevatedButton(
+                  onPressed: () {
+                    ref.watch(breakCountModelProvider(task)).setCountColor();
+
+                    showGeneralDialog(
+                      context: context,
+                      transitionDuration: const Duration(milliseconds: 300),
+                      barrierDismissible: false,
+                      pageBuilder: (context, animation, secondaryAnimation) {
+                        return BreakCountDialog(task: task);
+                      },
+                    );
                   },
-                );
-              },
-              title: Text(task.title),
-              subtitle: Text(
-                task.purpose,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  const Text('破った回数'),
-                  Row(
+                  style: ElevatedButton.styleFrom(primary: Colors.white),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      InkWell(
-                        onTap: () {},
-                        child: const Icon(Icons.exposure_minus_1),
+                      const Text(
+                        '破った回数',
+                        style: TextStyle(color: Colors.black),
                       ),
                       Text(
                         task.breakCount.toString(),
-                        style: Theme.of(context).textTheme.headline5!.copyWith(
-                              color: taskCardModel.countColor,
-                            ),
-                      ),
-                      InkWell(
-                        onTap: () {},
-                        child: const Icon(Icons.plus_one),
+                        style: TextStyle(
+                          color: breakCountModel.countColor,
+                          fontSize: 25,
+                        ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 }
