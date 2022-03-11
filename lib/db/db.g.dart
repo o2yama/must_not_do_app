@@ -10,13 +10,19 @@ part of 'db.dart';
 class Task extends DataClass implements Insertable<Task> {
   final int id;
   final String title;
+  final String purpose;
   final String? detail;
-  final bool isTodo;
+  final DateTime createdAt;
+  final DateTime updateAt;
+  final int breakCount;
   Task(
       {required this.id,
       required this.title,
+      required this.purpose,
       this.detail,
-      required this.isTodo});
+      required this.createdAt,
+      required this.updateAt,
+      required this.breakCount});
   factory Task.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return Task(
@@ -24,10 +30,16 @@ class Task extends DataClass implements Insertable<Task> {
           .mapFromDatabaseResponse(data['${effectivePrefix}id'])!,
       title: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}title'])!,
+      purpose: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}purpose'])!,
       detail: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}detail']),
-      isTodo: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_todo'])!,
+      createdAt: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}created_at'])!,
+      updateAt: const DateTimeType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}update_at'])!,
+      breakCount: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}break_count'])!,
     );
   }
   @override
@@ -35,10 +47,13 @@ class Task extends DataClass implements Insertable<Task> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
+    map['purpose'] = Variable<String>(purpose);
     if (!nullToAbsent || detail != null) {
       map['detail'] = Variable<String?>(detail);
     }
-    map['is_todo'] = Variable<bool>(isTodo);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['update_at'] = Variable<DateTime>(updateAt);
+    map['break_count'] = Variable<int>(breakCount);
     return map;
   }
 
@@ -46,9 +61,12 @@ class Task extends DataClass implements Insertable<Task> {
     return TasksCompanion(
       id: Value(id),
       title: Value(title),
+      purpose: Value(purpose),
       detail:
           detail == null && nullToAbsent ? const Value.absent() : Value(detail),
-      isTodo: Value(isTodo),
+      createdAt: Value(createdAt),
+      updateAt: Value(updateAt),
+      breakCount: Value(breakCount),
     );
   }
 
@@ -58,8 +76,11 @@ class Task extends DataClass implements Insertable<Task> {
     return Task(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
+      purpose: serializer.fromJson<String>(json['purpose']),
       detail: serializer.fromJson<String?>(json['detail']),
-      isTodo: serializer.fromJson<bool>(json['isTodo']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updateAt: serializer.fromJson<DateTime>(json['updateAt']),
+      breakCount: serializer.fromJson<int>(json['breakCount']),
     );
   }
   @override
@@ -68,82 +89,126 @@ class Task extends DataClass implements Insertable<Task> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
+      'purpose': serializer.toJson<String>(purpose),
       'detail': serializer.toJson<String?>(detail),
-      'isTodo': serializer.toJson<bool>(isTodo),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updateAt': serializer.toJson<DateTime>(updateAt),
+      'breakCount': serializer.toJson<int>(breakCount),
     };
   }
 
-  Task copyWith({int? id, String? title, String? detail, bool? isTodo}) => Task(
+  Task copyWith(
+          {int? id,
+          String? title,
+          String? purpose,
+          String? detail,
+          DateTime? createdAt,
+          DateTime? updateAt,
+          int? breakCount}) =>
+      Task(
         id: id ?? this.id,
         title: title ?? this.title,
+        purpose: purpose ?? this.purpose,
         detail: detail ?? this.detail,
-        isTodo: isTodo ?? this.isTodo,
+        createdAt: createdAt ?? this.createdAt,
+        updateAt: updateAt ?? this.updateAt,
+        breakCount: breakCount ?? this.breakCount,
       );
   @override
   String toString() {
     return (StringBuffer('Task(')
           ..write('id: $id, ')
           ..write('title: $title, ')
+          ..write('purpose: $purpose, ')
           ..write('detail: $detail, ')
-          ..write('isTodo: $isTodo')
+          ..write('createdAt: $createdAt, ')
+          ..write('updateAt: $updateAt, ')
+          ..write('breakCount: $breakCount')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, detail, isTodo);
+  int get hashCode =>
+      Object.hash(id, title, purpose, detail, createdAt, updateAt, breakCount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Task &&
           other.id == this.id &&
           other.title == this.title &&
+          other.purpose == this.purpose &&
           other.detail == this.detail &&
-          other.isTodo == this.isTodo);
+          other.createdAt == this.createdAt &&
+          other.updateAt == this.updateAt &&
+          other.breakCount == this.breakCount);
 }
 
 class TasksCompanion extends UpdateCompanion<Task> {
   final Value<int> id;
   final Value<String> title;
+  final Value<String> purpose;
   final Value<String?> detail;
-  final Value<bool> isTodo;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updateAt;
+  final Value<int> breakCount;
   const TasksCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
+    this.purpose = const Value.absent(),
     this.detail = const Value.absent(),
-    this.isTodo = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updateAt = const Value.absent(),
+    this.breakCount = const Value.absent(),
   });
   TasksCompanion.insert({
     this.id = const Value.absent(),
     required String title,
+    required String purpose,
     this.detail = const Value.absent(),
-    required bool isTodo,
+    required DateTime createdAt,
+    required DateTime updateAt,
+    this.breakCount = const Value.absent(),
   })  : title = Value(title),
-        isTodo = Value(isTodo);
+        purpose = Value(purpose),
+        createdAt = Value(createdAt),
+        updateAt = Value(updateAt);
   static Insertable<Task> custom({
     Expression<int>? id,
     Expression<String>? title,
+    Expression<String>? purpose,
     Expression<String?>? detail,
-    Expression<bool>? isTodo,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updateAt,
+    Expression<int>? breakCount,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
+      if (purpose != null) 'purpose': purpose,
       if (detail != null) 'detail': detail,
-      if (isTodo != null) 'is_todo': isTodo,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updateAt != null) 'update_at': updateAt,
+      if (breakCount != null) 'break_count': breakCount,
     });
   }
 
   TasksCompanion copyWith(
       {Value<int>? id,
       Value<String>? title,
+      Value<String>? purpose,
       Value<String?>? detail,
-      Value<bool>? isTodo}) {
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updateAt,
+      Value<int>? breakCount}) {
     return TasksCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
+      purpose: purpose ?? this.purpose,
       detail: detail ?? this.detail,
-      isTodo: isTodo ?? this.isTodo,
+      createdAt: createdAt ?? this.createdAt,
+      updateAt: updateAt ?? this.updateAt,
+      breakCount: breakCount ?? this.breakCount,
     );
   }
 
@@ -156,11 +221,20 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
+    if (purpose.present) {
+      map['purpose'] = Variable<String>(purpose.value);
+    }
     if (detail.present) {
       map['detail'] = Variable<String?>(detail.value);
     }
-    if (isTodo.present) {
-      map['is_todo'] = Variable<bool>(isTodo.value);
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updateAt.present) {
+      map['update_at'] = Variable<DateTime>(updateAt.value);
+    }
+    if (breakCount.present) {
+      map['break_count'] = Variable<int>(breakCount.value);
     }
     return map;
   }
@@ -170,8 +244,11 @@ class TasksCompanion extends UpdateCompanion<Task> {
     return (StringBuffer('TasksCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
+          ..write('purpose: $purpose, ')
           ..write('detail: $detail, ')
-          ..write('isTodo: $isTodo')
+          ..write('createdAt: $createdAt, ')
+          ..write('updateAt: $updateAt, ')
+          ..write('breakCount: $breakCount')
           ..write(')'))
         .toString();
   }
@@ -198,20 +275,40 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
           ),
           type: const StringType(),
           requiredDuringInsert: true);
+  final VerificationMeta _purposeMeta = const VerificationMeta('purpose');
+  @override
+  late final GeneratedColumn<String?> purpose =
+      GeneratedColumn<String?>('purpose', aliasedName, false,
+          additionalChecks: GeneratedColumn.checkTextLength(
+            minTextLength: 1,
+          ),
+          type: const StringType(),
+          requiredDuringInsert: true);
   final VerificationMeta _detailMeta = const VerificationMeta('detail');
   @override
   late final GeneratedColumn<String?> detail = GeneratedColumn<String?>(
       'detail', aliasedName, true,
       type: const StringType(), requiredDuringInsert: false);
-  final VerificationMeta _isTodoMeta = const VerificationMeta('isTodo');
+  final VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   @override
-  late final GeneratedColumn<bool?> isTodo = GeneratedColumn<bool?>(
-      'is_todo', aliasedName, false,
-      type: const BoolType(),
-      requiredDuringInsert: true,
-      defaultConstraints: 'CHECK (is_todo IN (0, 1))');
+  late final GeneratedColumn<DateTime?> createdAt = GeneratedColumn<DateTime?>(
+      'created_at', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _updateAtMeta = const VerificationMeta('updateAt');
   @override
-  List<GeneratedColumn> get $columns => [id, title, detail, isTodo];
+  late final GeneratedColumn<DateTime?> updateAt = GeneratedColumn<DateTime?>(
+      'update_at', aliasedName, false,
+      type: const IntType(), requiredDuringInsert: true);
+  final VerificationMeta _breakCountMeta = const VerificationMeta('breakCount');
+  @override
+  late final GeneratedColumn<int?> breakCount = GeneratedColumn<int?>(
+      'break_count', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, title, purpose, detail, createdAt, updateAt, breakCount];
   @override
   String get aliasedName => _alias ?? 'tasks';
   @override
@@ -230,15 +327,33 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
+    if (data.containsKey('purpose')) {
+      context.handle(_purposeMeta,
+          purpose.isAcceptableOrUnknown(data['purpose']!, _purposeMeta));
+    } else if (isInserting) {
+      context.missing(_purposeMeta);
+    }
     if (data.containsKey('detail')) {
       context.handle(_detailMeta,
           detail.isAcceptableOrUnknown(data['detail']!, _detailMeta));
     }
-    if (data.containsKey('is_todo')) {
-      context.handle(_isTodoMeta,
-          isTodo.isAcceptableOrUnknown(data['is_todo']!, _isTodoMeta));
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     } else if (isInserting) {
-      context.missing(_isTodoMeta);
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('update_at')) {
+      context.handle(_updateAtMeta,
+          updateAt.isAcceptableOrUnknown(data['update_at']!, _updateAtMeta));
+    } else if (isInserting) {
+      context.missing(_updateAtMeta);
+    }
+    if (data.containsKey('break_count')) {
+      context.handle(
+          _breakCountMeta,
+          breakCount.isAcceptableOrUnknown(
+              data['break_count']!, _breakCountMeta));
     }
     return context;
   }

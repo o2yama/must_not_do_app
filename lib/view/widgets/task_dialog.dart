@@ -5,9 +5,14 @@ import 'package:no_todo_app/db/db.dart';
 import 'package:no_todo_app/view_model/task_model.dart';
 
 final titleController = TextEditingController();
+final purposeController = TextEditingController();
 final detailController = TextEditingController();
 
-final alertMsgProvider = StateProvider<String?>((ref) => null);
+void clearControllers() {
+  titleController.clear();
+  purposeController.clear();
+  detailController.clear();
+}
 
 class TaskDialog extends ConsumerWidget {
   const TaskDialog({Key? key, this.task}) : super(key: key);
@@ -25,11 +30,10 @@ class TaskDialog extends ConsumerWidget {
         width: MediaQuery.of(context).size.width,
         child: Center(
           child: Padding(
-            padding: EdgeInsets.only(top: 100.h),
+            padding: EdgeInsets.only(top: 100.h, bottom: 20.h),
             child: Material(
               color: Colors.black.withOpacity(0),
               child: Container(
-                height: 450.h,
                 width: 300.w,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15.r),
@@ -38,13 +42,21 @@ class TaskDialog extends ConsumerWidget {
                 child: Column(
                   children: [
                     _buildHeader(context),
-                    _alertMsg(context, ref),
-                    SizedBox(height: 16.h),
-                    _buildTitleField,
-                    SizedBox(height: 16.h),
-                    _buildDetailField,
+                    SizedBox(
+                      height: 400.h,
+                      child: ListView(
+                        children: [
+                          _buildTitleField(context),
+                          SizedBox(height: 24.h),
+                          _buildPurposeField(context),
+                          SizedBox(height: 36.h),
+                          _buildDetailField,
+                          SizedBox(height: 200.h),
+                        ],
+                      ),
+                    ),
                     const Expanded(child: SizedBox()),
-                    _buildSaveButtons(context, ref),
+                    _buildSaveButton(context, ref),
                     SizedBox(height: 16.h),
                   ],
                 ),
@@ -91,35 +103,66 @@ class TaskDialog extends ConsumerWidget {
     );
   }
 
-  Widget _alertMsg(BuildContext context, WidgetRef ref) {
-    final msgState = ref.watch(alertMsgProvider);
-
-    return msgState == null
-        ? const SizedBox()
-        : Text(
-            msgState,
-            style: Theme.of(context)
-                .textTheme
-                .headline5!
-                .copyWith(color: Colors.red.shade300, fontSize: 18),
-          );
-  }
-
-  Widget get _buildTitleField {
+  Widget _buildTitleField(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: TextField(
-        controller: titleController,
-        decoration: InputDecoration(
-          label: const Text('タスク名'),
-          filled: true,
-          fillColor: Colors.grey.shade200,
-          hintText: 'タスク名前を入力してください',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '※必須',
+            style: Theme.of(context).textTheme.headline6!.copyWith(
+                  color: Colors.red.shade300,
+                  fontSize: 12,
+                ),
           ),
-        ),
+          TextField(
+            controller: titleController,
+            decoration: InputDecoration(
+              label: const Text('タスク名'),
+              filled: true,
+              fillColor: Colors.grey.shade200,
+              hintText: 'やめるタスクを入力',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPurposeField(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '※必須',
+            style: Theme.of(context).textTheme.headline6!.copyWith(
+                  color: Colors.red.shade300,
+                  fontSize: 12,
+                ),
+          ),
+          TextField(
+            controller: purposeController,
+            minLines: 1,
+            maxLines: 5,
+            decoration: InputDecoration(
+              label: const Text('目的'),
+              filled: true,
+              fillColor: Colors.grey.shade200,
+              hintText: 'それをやめた時のメリットは？',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -129,13 +172,13 @@ class TaskDialog extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: TextField(
         controller: detailController,
-        maxLines: 8,
-        minLines: 5,
+        minLines: 3,
+        maxLines: 5,
         decoration: InputDecoration(
           label: const Text('詳細'),
           filled: true,
           fillColor: Colors.grey.shade200,
-          hintText: 'どのようなタスクか、\n明確に定義しておきましょう',
+          hintText: 'どのようなことをしないのか、\n具体的に決めておきましょう',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
@@ -145,104 +188,50 @@ class TaskDialog extends ConsumerWidget {
     );
   }
 
-  Widget _buildSaveButtons(BuildContext context, WidgetRef ref) {
+  Widget _buildSaveButton(BuildContext context, WidgetRef ref) {
     final model = ref.watch(taskModelProvider.notifier);
 
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            SizedBox(
-              width: 130.w,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (ref.watch(alertMsgProvider) == null) {
-                    task == null
-                        ? await model.storeTask(
-                            titleController.text,
-                            detailController.text,
-                            true,
-                          )
-                        : await model.updateTask(
-                            task!.copyWith(
-                              title: titleController.text,
-                              detail: detailController.text,
-                              isTodo: true,
-                            ),
-                          );
+        SizedBox(
+          width: 250.w,
+          child: ElevatedButton(
+            onPressed: () async {
+              if (model.validateFields()) {
+                task == null
+                    ? await model.storeTask(
+                        titleController.text,
+                        purposeController.text,
+                        detailController.text,
+                      )
+                    : await model.updateTask(
+                        task!,
+                        titleController.text,
+                        purposeController.text,
+                        detailController.text,
+                      );
 
-                    Navigator.pop(context);
+                Navigator.pop(context);
 
-                    titleController.clear();
-                    detailController.clear();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  shape: const StadiumBorder(
-                    side: BorderSide(color: Colors.blueAccent),
-                  ),
-                ),
-                child: Text(
-                  'TODO',
-                  style: Theme.of(context).textTheme.headline5!.copyWith(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueAccent,
-                      ),
-                ),
+                titleController.clear();
+                detailController.clear();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              primary: Colors.white,
+              shape: const StadiumBorder(
+                side: BorderSide(color: Colors.redAccent),
               ),
             ),
-            SizedBox(
-              width: 130.w,
-              child: ElevatedButton(
-                onPressed: () async {
-                  model.validateField(
-                    titleController.text,
-                    detailController.text,
-                  );
-
-                  if (ref.watch(alertMsgProvider) == null) {
-                    task == null
-                        ? await model.storeTask(
-                            titleController.text,
-                            detailController.text,
-                            false,
-                          )
-                        : await model.updateTask(
-                            task!.copyWith(
-                              title: titleController.text,
-                              detail: detailController.text,
-                              isTodo: false,
-                            ),
-                          );
-
-                    Navigator.pop(context);
-
-                    titleController.clear();
-                    detailController.clear();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  shape: const StadiumBorder(
-                    side: BorderSide(color: Colors.redAccent),
+            child: Text(
+              task == null ? 'これはやらない！' : '保存',
+              style: Theme.of(context).textTheme.headline5!.copyWith(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.redAccent,
                   ),
-                ),
-                child: FittedBox(
-                  child: Text(
-                    'Not TODO',
-                    style: Theme.of(context).textTheme.headline5!.copyWith(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.redAccent,
-                        ),
-                  ),
-                ),
-              ),
             ),
-          ],
+          ),
         ),
       ],
     );
