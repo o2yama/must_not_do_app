@@ -5,7 +5,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>No Todo App</string>
+		<string>Don't</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -45,5 +45,16 @@
 		<false/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>GADApplicationIdentifier</key>
+        <string>ca-app-pub-3723051733099960~3845079347</string>
+        <key>NSUserTrackingUsageDescription</key>
+        <string>アプリの品質向上のため、一部の情報をトラッキング、収集します。これによる個人情報へのアクセスはありません。</string>
+        <key>SKAdNetworkItems</key>
+        <array>
+            <dict>
+                <key>SKAdNetworkIdentifier</key>
+                <string>cstr6suwn9.skadnetwork</string>
+            </dict>
+        </array>
 	</dict>
 </plist>
