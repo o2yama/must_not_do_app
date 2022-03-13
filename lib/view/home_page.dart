@@ -1,3 +1,4 @@
+import 'package:app_review/app_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,15 +7,36 @@ import 'package:no_todo_app/utils/formatter.dart';
 import 'package:no_todo_app/view/components/break_count_dialog.dart';
 import 'package:no_todo_app/view/components/task_dialog.dart';
 import 'package:no_todo_app/view_model/break_count_model.dart';
+import 'package:no_todo_app/view_model/home_model.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      /// 初回起動時のみトラッキングの許可リクエスト
+      await HomeModel().requestTrackingPermission();
+
+      /// 起動回数取得
+      final status = await HomeModel().incrementLaunchStatus();
+
+      /// 起動回数が5回の時にレビューのダイアログ表示
+      if (status == 5) await AppReview.requestReview;
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).backgroundColor,
         elevation: 0,
         centerTitle: false,
         toolbarHeight: 60,
