@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:no_todo_app/db/db.dart';
 import 'package:no_todo_app/utils/formatter.dart';
-import 'package:no_todo_app/view/components/break_count_dialog.dart';
-import 'package:no_todo_app/view/components/task_dialog.dart';
+import 'package:no_todo_app/view/common/ad_widget.dart';
+import 'package:no_todo_app/view/dialog/break_count_dialog.dart';
+import 'package:no_todo_app/view/dialog/task_dialog.dart';
 import 'package:no_todo_app/view_model/break_count_model.dart';
 import 'package:no_todo_app/view_model/home_model.dart';
 
@@ -19,8 +20,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
+    /// 初回起動時のみ
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      /// 初回起動時のみトラッキングの許可リクエスト
+      /// トラッキングの許可リクエスト
       await HomeModel().requestTrackingPermission();
 
       /// 起動回数取得
@@ -99,9 +101,15 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       return ListView(
-        children: snapshot.data!
-            .map((task) => _buildTaskCard(context, task))
-            .toList(),
+        physics: const BouncingScrollPhysics(),
+        children:
+            snapshot.data!.map((task) => _buildTaskCard(context, task)).toList()
+              ..add(
+                const Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: BannerAdWidget(),
+                ),
+              ),
       );
     }
   }

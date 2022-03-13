@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:no_todo_app/db/db.dart';
 import 'package:no_todo_app/view/common/loading_view.dart';
-import 'package:no_todo_app/view_model/task_model.dart';
+import 'package:no_todo_app/view_model/task_card_model.dart';
 
 class ConfirmDialog extends StatelessWidget {
   const ConfirmDialog({Key? key, required this.task}) : super(key: key);
@@ -28,7 +28,9 @@ class ConfirmDialog extends StatelessWidget {
                       Navigator.pop(context);
                       ref.watch(loadingStateProvider.notifier).startLoading();
 
-                      await ref.watch(taskModelProvider).deleteTask(task.id);
+                      await ref
+                          .watch(taskCardModelProvider)
+                          .deleteTask(task.id);
 
                       ref.watch(loadingStateProvider.notifier).endLoading();
 
@@ -57,7 +59,9 @@ class ConfirmDialog extends StatelessWidget {
                       Navigator.pop(context);
                       ref.watch(loadingStateProvider.notifier).startLoading();
 
-                      await ref.watch(taskModelProvider).deleteTask(task.id);
+                      await ref
+                          .watch(taskCardModelProvider)
+                          .deleteTask(task.id);
 
                       ref.watch(loadingStateProvider.notifier).endLoading();
 

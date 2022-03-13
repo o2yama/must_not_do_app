@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:no_todo_app/repository/prefs_repository.dart';
 import 'package:no_todo_app/view/home_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await PrefsRepository().getInstance();
+  await MobileAds.instance.initialize();
   runApp(
     const ProviderScope(child: MyApp()),
   );

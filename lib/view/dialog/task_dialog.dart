@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:no_todo_app/db/db.dart';
 import 'package:no_todo_app/view/common/confoirm_dialog.dart';
 import 'package:no_todo_app/view/common/loading_view.dart';
-import 'package:no_todo_app/view_model/task_model.dart';
+import 'package:no_todo_app/view_model/task_card_model.dart';
 
 final titleController = TextEditingController();
 final purposeController = TextEditingController();
@@ -203,7 +203,7 @@ class TaskDialog extends ConsumerWidget {
   }
 
   Widget _buildSaveButton(BuildContext context, WidgetRef ref) {
-    final model = ref.watch(taskModelProvider);
+    final model = ref.watch(taskCardModelProvider);
     final loadingController = ref.watch(loadingStateProvider.notifier);
 
     return Column(
