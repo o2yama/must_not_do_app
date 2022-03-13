@@ -1,14 +1,14 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:no_todo_app/db/db.dart';
-import 'package:no_todo_app/view/components/task_dialog.dart';
+import 'package:no_todo_app/view/dialog/task_dialog.dart';
 
-final taskModelProvider = Provider.autoDispose(
-  (ref) => TaskModel(db: ref.watch(dbProvider)),
+final taskCardModelProvider = Provider.autoDispose(
+  (ref) => TaskCardModel(db: ref.watch(dbProvider)),
 );
 
-class TaskModel {
-  TaskModel({required this.db});
+class TaskCardModel {
+  TaskCardModel({required this.db});
 
   final AppDatabase db;
 
