@@ -9,6 +9,7 @@ environment:
   sdk: ">=2.16.0 <3.0.0"
 
 dependencies:
+  app_review: ^2.1.1+1
   app_tracking_transparency: ^2.0.2+1
   flutter:
     sdk: flutter
