@@ -1,4 +1,5 @@
 import 'package:app_review/app_review.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +14,10 @@ import 'package:no_todo_app/view_model/home_model.dart';
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
+  static Route<Widget> route() {
+    return MaterialPageRoute<Widget>(builder: (_) => const HomePage());
+  }
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -26,11 +31,13 @@ class _HomePageState extends State<HomePage> {
       await HomeModel().requestTrackingPermission();
 
       /// 起動回数取得
-      final status = await HomeModel().incrementLaunchStatus();
+      final launchStatus = await HomeModel().incrementLaunchStatus();
+      print(launchStatus);
 
       /// 起動回数が5回の時にレビューのダイアログ表示
-      if (status == 5) await AppReview.requestReview;
+      if (launchStatus == 5) await AppReview.requestReview;
     });
+
     super.initState();
   }
 
@@ -50,7 +57,7 @@ class _HomePageState extends State<HomePage> {
               fit: BoxFit.contain,
             ),
             Text(
-              'しないリスト',
+              'しないことリスト',
               style: Theme.of(context).textTheme.headline6!.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -88,16 +95,20 @@ class _HomePageState extends State<HomePage> {
         child: CircularProgressIndicator.adaptive(),
       );
     } else if (snapshot.data == null || snapshot.data!.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: FittedBox(
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(24.r),
             child: Text(
-              '「しないこと」を決めて\n時間を有意義に使いましょう',
-              style: Theme.of(context).textTheme.headline3,
+              '「+」ボタンから\n「しないこと」を\n追加しましょう！',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline3!
+                  .copyWith(fontSize: 24.sp),
             ),
           ),
-        ),
+        ],
       );
     } else {
       return ListView(
@@ -105,9 +116,9 @@ class _HomePageState extends State<HomePage> {
         children:
             snapshot.data!.map((task) => _buildTaskCard(context, task)).toList()
               ..add(
-                const Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: BannerAdWidget(),
+                Padding(
+                  padding: EdgeInsets.only(top: 16.h),
+                  child: const BannerAdWidget(),
                 ),
               ),
       );
@@ -115,24 +126,36 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildAddTaskButton(BuildContext context) {
-    return FloatingActionButton(
-      backgroundColor: Colors.redAccent,
-      onPressed: () {
-        clearControllers();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        HomeModel().getLaunchStatus() == 0
+            ? const Icon(
+                CupertinoIcons.hand_point_right_fill,
+                color: Colors.orangeAccent,
+              )
+            : const SizedBox(),
+        SizedBox(width: 8.w),
+        FloatingActionButton(
+          backgroundColor: Colors.redAccent,
+          onPressed: () {
+            clearControllers();
 
-        showGeneralDialog(
-          context: context,
-          transitionDuration: const Duration(milliseconds: 300),
-          barrierDismissible: false,
-          barrierLabel: '',
-          pageBuilder: (context, animation, secondaryAnimation) {
-            return const TaskDialog();
+            showGeneralDialog(
+              context: context,
+              transitionDuration: const Duration(milliseconds: 300),
+              barrierDismissible: false,
+              barrierLabel: '',
+              pageBuilder: (context, animation, secondaryAnimation) {
+                return const TaskDialog();
+              },
+            );
           },
-        );
-      },
-      child: const Center(
-        child: Icon(Icons.add, size: 30),
-      ),
+          child: const Center(
+            child: Icon(Icons.add, size: 30),
+          ),
+        ),
+      ],
     );
   }
 

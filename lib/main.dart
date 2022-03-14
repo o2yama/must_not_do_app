@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:no_todo_app/repository/prefs_repository.dart';
-import 'package:no_todo_app/view/home_page.dart';
+import 'package:no_todo_app/view/pages/home/home_page.dart';
+import 'package:no_todo_app/view/pages/intro/intro_page1.dart';
+import 'package:no_todo_app/view_model/home_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +35,9 @@ class MyApp extends StatelessWidget {
               shadowColor: Colors.grey,
             ),
           ),
-          home: const HomePage(),
+          home: HomeModel().getLaunchStatus() == 0
+              ? const IntroPage1()
+              : const HomePage(),
         );
       },
     );
