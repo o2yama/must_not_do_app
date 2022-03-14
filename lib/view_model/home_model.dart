@@ -19,4 +19,8 @@ class HomeModel {
 
     return status;
   }
+
+  int getLaunchStatus() {
+    return _prefs.getLaunchStatus();
+  }
 }
