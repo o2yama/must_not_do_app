@@ -8,6 +8,7 @@ import 'package:no_todo_app/utils/formatter.dart';
 import 'package:no_todo_app/view/common/ad_widget.dart';
 import 'package:no_todo_app/view/dialog/break_count_dialog.dart';
 import 'package:no_todo_app/view/dialog/task_dialog.dart';
+import 'package:no_todo_app/view/pages/home/home_drawer.dart';
 import 'package:no_todo_app/view_model/break_count_model.dart';
 import 'package:no_todo_app/view_model/home_model.dart';
 
@@ -32,7 +33,6 @@ class _HomePageState extends State<HomePage> {
 
       /// 起動回数取得
       final launchStatus = await HomeModel().incrementLaunchStatus();
-      print(launchStatus);
 
       /// 起動回数が5回の時にレビューのダイアログ表示
       if (launchStatus == 5) await AppReview.requestReview;
@@ -46,9 +46,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).backgroundColor,
-        elevation: 0,
+        elevation: 1,
         centerTitle: false,
         toolbarHeight: 60,
+        actionsIconTheme: const IconThemeData(color: Colors.black54),
         title: Column(
           children: [
             Image.asset(
@@ -66,6 +67,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      endDrawer: const HomeDrawer(),
       body: SafeArea(
         left: false,
         right: false,
@@ -112,7 +114,6 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       return ListView(
-        physics: const BouncingScrollPhysics(),
         children:
             snapshot.data!.map((task) => _buildTaskCard(context, task)).toList()
               ..add(

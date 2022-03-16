@@ -151,9 +151,9 @@ class BreakCountDialog extends StatelessWidget {
             shape: const StadiumBorder(),
             primary: Colors.white,
           ),
-          child: Text(
+          child: const Text(
             '戻る',
-            style: TextStyle(fontSize: 20.sp, color: Colors.black),
+            style: TextStyle(fontSize: 20, color: Colors.black),
           ),
         ),
       ],
