@@ -1,17 +1,19 @@
+import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:no_todo_app/db/db.dart';
+import 'package:no_todo_app/utils/screen_data.dart';
 import 'package:no_todo_app/view/common/confoirm_dialog.dart';
 import 'package:no_todo_app/view/common/loading_view.dart';
 import 'package:no_todo_app/view_model/task_card_model.dart';
 
-final titleController = TextEditingController();
+final taskNameController = TextEditingController();
 final purposeController = TextEditingController();
 final detailController = TextEditingController();
 
 void clearControllers() {
-  titleController.clear();
+  taskNameController.clear();
   purposeController.clear();
   detailController.clear();
 }
@@ -35,7 +37,7 @@ class TaskDialog extends ConsumerWidget {
               child: Material(
                 color: Colors.black.withOpacity(0),
                 child: Container(
-                  width: 350.w,
+                  width: ScreenData.isMobile ? 350.w : 300.w,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15.r),
                     color: Theme.of(context).backgroundColor,
@@ -44,16 +46,26 @@ class TaskDialog extends ConsumerWidget {
                     children: [
                       _buildHeader(context),
                       SizedBox(
-                        height: 400.h,
+                        height: 350.h,
                         child: ListView(
                           children: [
-                            _buildTitleField(context),
+                            _buildTaskNameField(context),
                             SizedBox(height: 24.h),
                             _buildPurposeField(context),
                             SizedBox(height: 36.h),
                             _buildDetailField,
                             SizedBox(height: 200.h),
                           ],
+                        ),
+                      ),
+                      BubbleSpecialThree(
+                        text: 'ファイト!!',
+                        color: Colors.green.withOpacity(0.7),
+                        tail: true,
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: ScreenData.isMobile ? 16.sp : 12.sp,
                         ),
                       ),
                       const Expanded(child: SizedBox()),
@@ -84,56 +96,66 @@ class TaskDialog extends ConsumerWidget {
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 8.w),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(width: 40.w),
-            Text(
-              task == null ? '「しないこと」追加' : '「しないこと」編集',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline5!
-                  .copyWith(fontWeight: FontWeight.bold),
+        child: SizedBox(
+          height: 50.h,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(width: 40.w),
+                Text(
+                  task == null ? '「しないこと」追加' : '「しないこと」編集',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: ScreenData.isMobile ? 20.sp : 15.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  width: 40.w,
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.clear,
+                      size: ScreenData.isMobile ? 22.sp : 18.sp,
+                    ),
+                  ),
+                )
+              ],
             ),
-            SizedBox(
-              width: 40.w,
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.clear),
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTitleField(BuildContext context) {
+  Widget _buildTaskNameField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
             '※必須',
             style: Theme.of(context).textTheme.headline6!.copyWith(
-                  color: Colors.red.shade300,
-                  fontSize: 12,
+                  color: Colors.redAccent,
+                  fontSize: ScreenData.isMobile ? 12.sp : 8.sp,
                 ),
           ),
           TextField(
-            controller: titleController,
+            controller: taskNameController,
+            style: TextStyle(fontSize: ScreenData.isMobile ? 14.sp : 10.sp),
             decoration: InputDecoration(
-              label: const Text('タスク名'),
+              label: const Text('しないこと'),
+              labelStyle: TextStyle(
+                fontSize: ScreenData.isMobile ? 14.sp : 10.sp,
+              ),
               filled: true,
               fillColor: Colors.grey.shade200,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
                 borderSide: BorderSide.none,
               ),
-              suffixText: 'をしない',
             ),
           ),
         ],
@@ -143,27 +165,34 @@ class TaskDialog extends ConsumerWidget {
 
   Widget _buildPurposeField(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
             '※必須',
             style: Theme.of(context).textTheme.headline6!.copyWith(
-                  color: Colors.red.shade300,
-                  fontSize: 12,
+                  color: Colors.redAccent,
+                  fontSize: ScreenData.isMobile ? 12.sp : 8.sp,
                 ),
           ),
           TextField(
             controller: purposeController,
+            style: TextStyle(fontSize: ScreenData.isMobile ? 14.sp : 10.sp),
             decoration: InputDecoration(
               label: const Text('目的'),
+              labelStyle: TextStyle(
+                fontSize: ScreenData.isMobile ? 14.sp : 10.sp,
+              ),
               filled: true,
               fillColor: Colors.grey.shade200,
               hintText: 'それをしないメリットは？',
-              hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+              hintStyle: TextStyle(
+                fontSize: ScreenData.isMobile ? 14.sp : 10.sp,
+                color: Colors.grey,
+              ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
                 borderSide: BorderSide.none,
               ),
             ),
@@ -175,24 +204,33 @@ class TaskDialog extends ConsumerWidget {
 
   Widget get _buildDetailField {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            '何かに置き換えると継続しやすくなります。',
-            style: TextStyle(fontSize: 11.sp),
+            '何かに置き換えると継続しやすくなります',
+            style: TextStyle(
+              fontSize: ScreenData.isMobile ? 12.sp : 8.sp,
+            ),
           ),
           TextField(
             controller: detailController,
+            style: TextStyle(fontSize: ScreenData.isMobile ? 14.sp : 10.sp),
             decoration: InputDecoration(
               label: const Text('代わりのタスク'),
+              labelStyle: TextStyle(
+                fontSize: ScreenData.isMobile ? 14.sp : 10.sp,
+              ),
               filled: true,
               fillColor: Colors.grey.shade200,
-              hintText: '例) お菓子を食べる代わりに、ガムを噛む',
-              hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+              hintText: '例) お菓子を食べる代わりにガムを噛む',
+              hintStyle: TextStyle(
+                fontSize: ScreenData.isMobile ? 14.sp : 10.sp,
+                color: Colors.grey,
+              ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10.r),
                 borderSide: BorderSide.none,
               ),
             ),
@@ -209,8 +247,8 @@ class TaskDialog extends ConsumerWidget {
     return Column(
       children: [
         SizedBox(
-          height: 50.h,
-          width: 250.w,
+          height: ScreenData.isMobile ? 50.h : 40.h,
+          width: ScreenData.isMobile ? 250.w : 200.w,
           child: ElevatedButton(
             onPressed: () async {
               if (model.validateFields()) {
@@ -218,13 +256,13 @@ class TaskDialog extends ConsumerWidget {
 
                 task == null
                     ? await model.storeTask(
-                        titleController.text,
+                        taskNameController.text,
                         purposeController.text,
                         detailController.text,
                       )
                     : await model.updateTask(
                         task!,
-                        titleController.text,
+                        taskNameController.text,
                         purposeController.text,
                         detailController.text,
                       );
@@ -233,14 +271,17 @@ class TaskDialog extends ConsumerWidget {
 
                 Navigator.pop(context);
 
-                titleController.clear();
+                taskNameController.clear();
                 detailController.clear();
               }
             },
             style: ElevatedButton.styleFrom(
               primary: Colors.white,
-              shape: const StadiumBorder(
-                side: BorderSide(color: Colors.redAccent),
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: Colors.redAccent,
+                  width: ScreenData.isMobile ? 1 : 2,
+                ),
               ),
             ),
             child: Text(
@@ -264,7 +305,9 @@ class TaskDialog extends ConsumerWidget {
                 },
                 child: const Text(
                   'タスク削除',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
                 ),
               ),
       ],

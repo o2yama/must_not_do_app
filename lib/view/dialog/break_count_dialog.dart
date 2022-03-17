@@ -1,7 +1,9 @@
+import 'package:chat_bubbles/bubbles/bubble_special_three.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:no_todo_app/db/db.dart';
+import 'package:no_todo_app/utils/screen_data.dart';
 import 'package:no_todo_app/view/common/loading_view.dart';
 import 'package:no_todo_app/view_model/break_count_model.dart';
 
@@ -27,13 +29,13 @@ class BreakCountDialog extends StatelessWidget {
                   child: Material(
                     color: Colors.black.withOpacity(0),
                     child: Container(
-                      width: 350.w,
+                      width: ScreenData.isMobile ? 350.w : 300.w,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15.r),
                         color: Theme.of(context).backgroundColor,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(16.r),
                         child: Center(
                           child: Column(
                             children: [
@@ -78,20 +80,32 @@ class BreakCountDialog extends StatelessWidget {
   Widget _buildCounter(BuildContext context, BreakCountModel model) {
     return Column(
       children: [
-        const Text(
+        Text(
           '破った回数',
           style: TextStyle(
             color: Colors.grey,
-            fontSize: 16,
+            fontSize: 16.sp,
           ),
         ),
         SizedBox(height: 8.h),
         Text(
           model.task.breakCount.toString(),
-          style: Theme.of(context)
-              .textTheme
-              .headline2!
-              .copyWith(color: model.countColor, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: model.countColor,
+            fontWeight: FontWeight.bold,
+            fontSize: ScreenData.isMobile ? 50.sp : 40.sp,
+          ),
+        ),
+        SizedBox(height: 24.h),
+        BubbleSpecialThree(
+          text: model.msg,
+          color: model.countColor.withOpacity(0.7),
+          tail: true,
+          textStyle: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: ScreenData.isMobile ? 14.sp : 12.sp,
+          ),
         ),
       ],
     );
@@ -107,8 +121,8 @@ class BreakCountDialog extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             SizedBox(
-              height: 50.h,
-              width: 150.w,
+              height: ScreenData.isMobile ? 50.h : 40.h,
+              width: ScreenData.isMobile ? 150.w : 100.w,
               child: ElevatedButton(
                 onPressed: () async {
                   _loadingController.startLoading();
@@ -125,8 +139,8 @@ class BreakCountDialog extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 50.h,
-              width: 150.w,
+              height: ScreenData.isMobile ? 50.h : 40.h,
+              width: ScreenData.isMobile ? 150.w : 100.w,
               child: ElevatedButton(
                 onPressed: () async {
                   _loadingController.startLoading();
@@ -151,9 +165,15 @@ class BreakCountDialog extends StatelessWidget {
             shape: const StadiumBorder(),
             primary: Colors.white,
           ),
-          child: Text(
-            '戻る',
-            style: TextStyle(fontSize: 20.sp, color: Colors.black),
+          child: Padding(
+            padding: EdgeInsets.all(8.r),
+            child: Text(
+              '戻る',
+              style: TextStyle(
+                fontSize: ScreenData.isMobile ? 20.sp : 12.sp,
+                color: Colors.black,
+              ),
+            ),
           ),
         ),
       ],

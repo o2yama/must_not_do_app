@@ -13,7 +13,7 @@ class TaskCardModel {
   final AppDatabase db;
 
   bool validateFields() {
-    if (titleController.text.isEmpty) {
+    if (taskNameController.text.isEmpty) {
       return false;
     } else if (purposeController.text.isEmpty) {
       return false;
